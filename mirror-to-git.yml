@@ -1,0 +1,24 @@
+trigger:
+ branches:
+  include:
+      - "*"
+
+pool: my-local-pool
+
+name: "$(Date:yyyyMMdd) ID $(Rev:.r) [Mirror-To-Git]"
+
+resources:
+ repositories:
+     - repository: self
+       type: git
+       ref: $(Build.SourceBranch)
+
+stages:
+    - stage: MirrorToGit
+      jobs:
+          - job:
+            displayName: "Mirror To Git"
+            steps:
+                - powershell: 
+                    $branchName = "$(Build.SourceBranchName)"
+                    echo $branchName
