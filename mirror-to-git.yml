@@ -5,13 +5,13 @@ trigger:
 
 pool: my-local-pool
 
-name: "$(Date:yyyyMMdd) ID $(Rev:.r) [Mirror-To-Git]"
+name: "$(Date:yyyy-MM-dd) ID $(Rev:.r) [Mirror-To-Git]"
 
-resources:
- repositories:
-     - repository: self
-       type: git
-       ref: $(Build.SourceBranch)
+variables:
+ - name: git_repo_name
+   value: "terrform-showcase"
+ - name: branchName
+   value: $[replace(variables['Build.SourceBranch'], 'refs/heads/', '')]
 
 stages:
     - stage: MirrorToGit
@@ -19,6 +19,17 @@ stages:
           - job:
             displayName: "Mirror To Git"
             steps:
-                - powershell: 
+                - checkout: self
+                
+                - powershell: |
                     $branchName = "$(Build.SourceBranchName)"
-                    echo $branchName
+                    echo "branch name: $branchName"
+
+                    git checkout -b $branchName
+
+                    git remote remove github
+                    git remote add github https://github.com/aravinthk12/$(git_repo_name)
+
+                    git push github $branchName
+                    
+                  displayName: "Push to GitHub with matching branch name"
